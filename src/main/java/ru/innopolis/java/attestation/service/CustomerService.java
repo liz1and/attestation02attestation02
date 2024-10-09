@@ -6,6 +6,7 @@ import ru.innopolis.java.attestation.model.Customer;
 import ru.innopolis.java.attestation.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.innopolis.java.attestation.utils.DTOEntityConverter;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,19 +24,19 @@ public class CustomerService {
     public List<CustomerDTO> getAllCustomers() {
         List<Customer> customers = customerRepository.findAll();
         return customers.stream()
-                .map(this::convertToDTO)
+                .map(DTOEntityConverter::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public Optional<CustomerDTO> getCustomerById(Long id) {
         return customerRepository.findById(id)
-                .map(this::convertToDTO);
+                .map(DTOEntityConverter::convertToDTO);
     }
 
     public CustomerDTO createCustomer(CustomerDTO customerDTO) {
-        Customer customer = convertToEntity(customerDTO);
+        Customer customer = DTOEntityConverter.convertToEntity(customerDTO);
         Customer savedCustomer = customerRepository.save(customer);
-        return convertToDTO(savedCustomer);
+        return DTOEntityConverter.convertToDTO(savedCustomer);
     }
 
     public CustomerDTO updateCustomer(Long id, CustomerDTO customerDTO) {
@@ -44,7 +45,7 @@ public class CustomerService {
             Customer customer = existingCustomer.get();
             customer.setName(customerDTO.getName());
             Customer updatedCustomer = customerRepository.save(customer);
-            return convertToDTO(updatedCustomer);
+            return DTOEntityConverter.convertToDTO(updatedCustomer);
         } else {
             throw new EntityNotFoundException("Customer not found");
         }
@@ -52,20 +53,6 @@ public class CustomerService {
 
     public void deleteCustomer(Long id) {
         customerRepository.deleteById(id);
-    }
-
-    private CustomerDTO convertToDTO(Customer customer) {
-        CustomerDTO customerDTO = new CustomerDTO();
-        customerDTO.setId(customer.getId());
-        customerDTO.setName(customer.getName());
-        return customerDTO;
-    }
-
-    private Customer convertToEntity(CustomerDTO customerDTO) {
-        Customer customer = new Customer();
-        customer.setId(customerDTO.getId());
-        customer.setName(customerDTO.getName());
-        return customer;
     }
 }
 

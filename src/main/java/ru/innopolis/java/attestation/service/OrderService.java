@@ -6,6 +6,7 @@ import ru.innopolis.java.attestation.model.Order;
 import ru.innopolis.java.attestation.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.innopolis.java.attestation.utils.DTOEntityConverter;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,19 +24,19 @@ public class OrderService {
     public List<OrderDTO> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
         return orders.stream()
-                .map(this::convertToDTO)
+                .map(DTOEntityConverter::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public Optional<OrderDTO> getOrderById(Long id) {
         return orderRepository.findById(id)
-                .map(this::convertToDTO);
+                .map(DTOEntityConverter::convertToDTO);
     }
 
     public OrderDTO createOrder(OrderDTO orderDTO) {
-        Order order = convertToEntity(orderDTO);
+        Order order = DTOEntityConverter.convertToEntity(orderDTO);
         Order savedOrder = orderRepository.save(order);
-        return convertToDTO(savedOrder);
+        return DTOEntityConverter.convertToDTO(savedOrder);
     }
 
     public OrderDTO updateOrder(Long id, OrderDTO orderDTO) {
@@ -47,7 +48,7 @@ public class OrderService {
             order.setOrderDate(orderDTO.getOrderDate());
             order.setQuantity(orderDTO.getQuantity());
             Order updatedOrder = orderRepository.save(order);
-            return convertToDTO(updatedOrder);
+            return DTOEntityConverter.convertToDTO(updatedOrder);
         } else {
             throw new EntityNotFoundException("Order not found");
         }
@@ -55,26 +56,6 @@ public class OrderService {
 
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
-    }
-
-    private OrderDTO convertToDTO(Order order) {
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setId(order.getId());
-        orderDTO.setProductId(order.getProductId());
-        orderDTO.setCustomerId(order.getCustomerId());
-        orderDTO.setOrderDate(order.getOrderDate());
-        orderDTO.setQuantity(order.getQuantity());
-        return orderDTO;
-    }
-
-    private Order convertToEntity(OrderDTO orderDTO) {
-        Order order = new Order();
-        order.setId(orderDTO.getId());
-        order.setProductId(orderDTO.getProductId());
-        order.setCustomerId(orderDTO.getCustomerId());
-        order.setOrderDate(orderDTO.getOrderDate());
-        order.setQuantity(orderDTO.getQuantity());
-        return order;
     }
 }
 

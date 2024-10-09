@@ -6,6 +6,7 @@ import ru.innopolis.java.attestation.model.Product;
 import ru.innopolis.java.attestation.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.innopolis.java.attestation.utils.DTOEntityConverter;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,20 +24,20 @@ public class ProductService {
     public List<ProductDTO> getAllProducts() {
         List<Product> products = productRepository.findAll();
         return products.stream()
-                .map(this::convertToDTO)
+                .map(DTOEntityConverter::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public Optional<ProductDTO> getProductById(Long id) {
         return productRepository.findById(id)
-                .map(this::convertToDTO);
+                .map(DTOEntityConverter::convertToDTO);
     }
 
     public ProductDTO createProduct(ProductDTO productDTO) {
-        Product product = convertToEntity(productDTO);
+        Product product = DTOEntityConverter.convertToEntity(productDTO);
         Product savedProduct = productRepository.save(product);
 
-        return convertToDTO(savedProduct);
+        return DTOEntityConverter.convertToDTO(savedProduct);
     }
 
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
@@ -47,7 +48,7 @@ public class ProductService {
             product.setCost(productDTO.getCost());
             product.setQuantity(productDTO.getQuantity());
             Product updatedProduct = productRepository.save(product);
-            return convertToDTO(updatedProduct);
+            return DTOEntityConverter.convertToDTO(updatedProduct);
         } else {
             throw new EntityNotFoundException("Product not found");
         }
@@ -56,21 +57,5 @@ public class ProductService {
 
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
-    }
-
-    private ProductDTO convertToDTO(Product product) {
-        ProductDTO productDTO = new ProductDTO();
-        productDTO.setId(product.getId());
-        productDTO.setDescription(product.getDescription());
-        productDTO.setCost(product.getCost());
-        return productDTO;
-    }
-
-    private Product convertToEntity(ProductDTO productDTO) {
-        Product product = new Product();
-        product.setId(productDTO.getId());
-        product.setDescription(productDTO.getDescription());
-        product.setCost(productDTO.getCost());
-        return product;
     }
 }
