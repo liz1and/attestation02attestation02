@@ -9,9 +9,20 @@ services:
       - SPRING_DATASOURCE_PASSWORD=1Qwerty1
     depends_on:
       - db
+    networks:
+      - app-network
+
   db:
     image: postgres:13
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=1Qwerty1
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
